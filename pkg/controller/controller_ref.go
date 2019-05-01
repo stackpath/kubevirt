@@ -28,8 +28,9 @@ import (
 // GetControllerOf returns the controllerRef if controllee has a controller,
 // otherwise returns nil.
 func GetControllerOf(pod *k8sv1.Pod) *metav1.OwnerReference {
+	_, k8sControlled := pod.Annotations[virtv1.K8sWorkloadControlled]
 	controllerRef := metav1.GetControllerOf(pod)
-	if controllerRef != nil {
+	if controllerRef != nil && !k8sControlled {
 		return controllerRef
 	}
 	// We may find pods that are only using CreatedByLabel and not set with an OwnerReference
