@@ -659,7 +659,7 @@ imports:
   - pkg/common
   - pkg/util/proto
 - name: kubevirt.io/containerized-data-importer
-  version: c2a2fb4f58dd6babe7d6f7123d7d50cb6b604589
+  version: 52e7187df6a915975493bd452987cf9380efa9f6
   repo: https://github.com/kubevirt/containerized-data-importer.git
   subpackages:
   - pkg/apis/core

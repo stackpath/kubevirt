@@ -1610,6 +1610,16 @@
       }
      }
     }
+   },
+   "/healthz": {
+    "get": {
+     "operationId": "healthzHandler",
+     "responses": {
+      "200": {
+       "description": "OK"
+      }
+     }
+    }
    }
   },
   "definitions": {
@@ -2411,6 +2421,12 @@
     "properties": {
      "imagePullPolicy": {
       "type": "string"
+     },
+     "imageRegistry": {
+      "type": "string"
+     },
+     "imageTag": {
+      "type": "string"
      }
     }
    },
@@ -2518,6 +2534,10 @@
    "v1alpha1.DataVolumeSourceHTTP": {
     "description": "DataVolumeSourceHTTP provides the parameters to create a Data Volume from an HTTP source",
     "properties": {
+     "certConfigMap": {
+      "description": "CertConfigMap provides a reference to the Registry certs",
+      "type": "string"
+     },
      "secretRef": {
       "description": "SecretRef provides the secret reference needed to access the HTTP source",
       "type": "string"
@@ -2542,6 +2562,10 @@
    "v1alpha1.DataVolumeSourceRegistry": {
     "description": "DataVolumeSourceRegistry provides the parameters to create a Data Volume from an registry source",
     "properties": {
+     "certConfigMap": {
+      "description": "CertConfigMap provides a reference to the Registry certs",
+      "type": "string"
+     },
      "secretRef": {
       "description": "SecretRef provides the secret reference needed to access the Registry source",
       "type": "string"
@@ -2594,6 +2618,9 @@
     "properties": {
      "phase": {
       "description": "Phase is the current phase of the data volume",
+      "type": "string"
+     },
+     "progress": {
       "type": "string"
      }
     }

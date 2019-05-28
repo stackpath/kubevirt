@@ -7,13 +7,14 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/golang/glog"
 	"k8s.io/api/admission/v1beta1"
+	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	k8sfield "k8s.io/apimachinery/pkg/util/validation/field"
-
+	"k8s.io/klog"
 	cdicorev1alpha1 "kubevirt.io/containerized-data-importer/pkg/apis/core/v1alpha1"
+	"kubevirt.io/containerized-data-importer/pkg/controller"
 )
 
 type admitFunc func(*v1beta1.AdmissionReview) *v1beta1.AdmissionResponse
@@ -124,13 +125,59 @@ func validateDataVolumeSpec(field *k8sfield.Path, spec *cdicorev1alpha1.DataVolu
 		}
 	}
 
-	if spec.Source.PVC != nil && (spec.Source.PVC.Namespace == "" || spec.Source.PVC.Name == "") {
+	// Make sure contentType is either empty (kubevirt), or kubevirt or archive
+	if spec.ContentType != "" && string(spec.ContentType) != string(cdicorev1alpha1.DataVolumeKubeVirt) && string(spec.ContentType) != string(cdicorev1alpha1.DataVolumeArchive) {
+		sourceType = field.Child("contentType").String()
 		causes = append(causes, metav1.StatusCause{
 			Type:    metav1.CauseTypeFieldValueInvalid,
-			Message: fmt.Sprintf("%s source PVC is not valid", field.Child("source", "PVC").String()),
-			Field:   field.Child("source", "PVC").String(),
+			Message: fmt.Sprintf("ContentType not one of: %s, %s", cdicorev1alpha1.DataVolumeKubeVirt, cdicorev1alpha1.DataVolumeArchive),
+			Field:   sourceType,
 		})
 		return causes
+	}
+
+	if spec.Source.Blank != nil && string(spec.ContentType) == string(cdicorev1alpha1.DataVolumeArchive) {
+		sourceType = field.Child("contentType").String()
+		causes = append(causes, metav1.StatusCause{
+			Type:    metav1.CauseTypeFieldValueInvalid,
+			Message: fmt.Sprintf("SourceType cannot be blank and the contentType be archive"),
+			Field:   sourceType,
+		})
+		return causes
+	}
+
+	if spec.Source.PVC != nil {
+		if spec.Source.PVC.Namespace == "" || spec.Source.PVC.Name == "" {
+			causes = append(causes, metav1.StatusCause{
+				Type:    metav1.CauseTypeFieldValueInvalid,
+				Message: fmt.Sprintf("%s source PVC is not valid", field.Child("source", "PVC").String()),
+				Field:   field.Child("source", "PVC").String(),
+			})
+			return causes
+		}
+		client := GetClient()
+		if client != nil {
+			sourcePVC, err := client.CoreV1().PersistentVolumeClaims(spec.Source.PVC.Namespace).Get(spec.Source.PVC.Name, metav1.GetOptions{})
+			if err != nil {
+				if k8serrors.IsNotFound(err) {
+					causes = append(causes, metav1.StatusCause{
+						Type:    metav1.CauseTypeFieldValueNotFound,
+						Message: fmt.Sprintf("Source PVC %s/%s doesn't exist", spec.Source.PVC.Namespace, spec.Source.PVC.Name),
+						Field:   field.Child("source", "PVC").String(),
+					})
+					return causes
+				}
+			}
+			err = controller.ValidateCanCloneSourceAndTargetSpec(&sourcePVC.Spec, spec.PVC)
+			if err != nil {
+				causes = append(causes, metav1.StatusCause{
+					Type:    metav1.CauseTypeFieldValueInvalid,
+					Message: err.Error(),
+					Field:   field.Child("PVC").String(),
+				})
+				return causes
+			}
+		}
 	}
 
 	if spec.PVC == nil {
@@ -141,11 +188,19 @@ func validateDataVolumeSpec(field *k8sfield.Path, spec *cdicorev1alpha1.DataVolu
 		})
 		return causes
 	}
-	pvcSize := spec.PVC.Resources.Requests["storage"]
-	if pvcSize.IsZero() || pvcSize.Value() < 0 {
+	if pvcSize, ok := spec.PVC.Resources.Requests["storage"]; ok {
+		if pvcSize.IsZero() || pvcSize.Value() < 0 {
+			causes = append(causes, metav1.StatusCause{
+				Type:    metav1.CauseTypeFieldValueInvalid,
+				Message: fmt.Sprintf("PVC size can't be equal or less than zero"),
+				Field:   field.Child("PVC", "resources", "requests", "size").String(),
+			})
+			return causes
+		}
+	} else {
 		causes = append(causes, metav1.StatusCause{
 			Type:    metav1.CauseTypeFieldValueInvalid,
-			Message: fmt.Sprintf("PVC size can't be equal or less than zero"),
+			Message: fmt.Sprintf("PVC size is missing"),
 			Field:   field.Child("PVC", "resources", "requests", "size").String(),
 		})
 		return causes
@@ -161,7 +216,7 @@ func admitDVs(ar *v1beta1.AdmissionReview) *v1beta1.AdmissionResponse {
 		Resource: "datavolumes",
 	}
 	if ar.Request.Resource != resource {
-		glog.Errorf("resource is %s but request is: %s", resource, ar.Request.Resource)
+		klog.Errorf("resource is %s but request is: %s", resource, ar.Request.Resource)
 		err := fmt.Errorf("expect resource to be '%s'", resource.Resource)
 		return toAdmissionResponseError(err)
 	}
@@ -175,9 +230,29 @@ func admitDVs(ar *v1beta1.AdmissionReview) *v1beta1.AdmissionResponse {
 		return toAdmissionResponseError(err)
 	}
 
+	client := GetClient()
+	if client != nil {
+		pvcs, err := client.CoreV1().PersistentVolumeClaims(dv.GetNamespace()).List(metav1.ListOptions{})
+		if err != nil {
+			return toAdmissionResponseError(err)
+		}
+		for _, pvc := range pvcs.Items {
+			if pvc.Name == dv.GetName() {
+				klog.Errorf("destination PVC %s/%s already exists", dv.GetNamespace(), dv.GetName())
+				var causes []metav1.StatusCause
+				causes = append(causes, metav1.StatusCause{
+					Type:    metav1.CauseTypeFieldValueDuplicate,
+					Message: fmt.Sprintf("Destination PVC already exists"),
+					Field:   k8sfield.NewPath("DataVolume").Child("Name").String(),
+				})
+				return toRejectedAdmissionResponse(causes)
+			}
+		}
+	}
+
 	causes := validateDataVolumeSpec(k8sfield.NewPath("spec"), &dv.Spec)
 	if len(causes) > 0 {
-		glog.Infof("rejected DataVolume admission")
+		klog.Infof("rejected DataVolume admission")
 		return toRejectedAdmissionResponse(causes)
 	}
 
@@ -207,12 +282,12 @@ func serve(resp http.ResponseWriter, req *http.Request, admit admitFunc) {
 
 	responseBytes, err := json.Marshal(response)
 	if err != nil {
-		glog.Errorf("failed json encode webhook response: %s", err)
+		klog.Errorf("failed json encode webhook response: %s", err)
 		resp.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	if _, err := resp.Write(responseBytes); err != nil {
-		glog.Errorf("failed to write webhook response: %s", err)
+		klog.Errorf("failed to write webhook response: %s", err)
 		resp.WriteHeader(http.StatusBadRequest)
 		return
 	}

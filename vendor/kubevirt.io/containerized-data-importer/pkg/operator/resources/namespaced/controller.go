@@ -26,6 +26,8 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 
 	"kubevirt.io/containerized-data-importer/pkg/common"
+
+	utils "kubevirt.io/containerized-data-importer/pkg/operator/resources/utils"
 )
 
 const (
@@ -51,16 +53,17 @@ func createControllerResources(args *FactoryArgs) []runtime.Object {
 			args.DockerTag,
 			args.Verbosity,
 			args.PullPolicy),
+		createInsecureRegConfigMap(),
 	}
 }
 
 func createControllerServiceAccount() *corev1.ServiceAccount {
-	return createServiceAccount(controllerServiceAccount)
+	return utils.CreateServiceAccount(controllerServiceAccount)
 }
 
 func createControllerDeployment(repo, controllerImage, importerImage, clonerImage, uploadServerImage, tag, verbosity, pullPolicy string) *appsv1.Deployment {
-	deployment := createDeployment("cdi-deployment", "app", "containerized-data-importer", controllerServiceAccount, int32(1))
-	container := createContainer("cdi-controller", repo, controllerImage, tag, verbosity, corev1.PullPolicy(pullPolicy))
+	deployment := utils.CreateDeployment("cdi-deployment", "app", "containerized-data-importer", controllerServiceAccount, int32(1))
+	container := utils.CreateContainer("cdi-controller", repo, controllerImage, tag, verbosity, corev1.PullPolicy(pullPolicy))
 	container.Env = []corev1.EnvVar{
 		{
 			Name:  "IMPORTER_IMAGE",
@@ -78,6 +81,19 @@ func createControllerDeployment(repo, controllerImage, importerImage, clonerImag
 			Name:  "UPLOADPROXY_SERVICE",
 			Value: uploadProxyResourceName,
 		},
+		{
+			Name:  "PULL_POLICY",
+			Value: pullPolicy,
+		},
+	}
+	container.ReadinessProbe = &corev1.Probe{
+		Handler: corev1.Handler{
+			Exec: &corev1.ExecAction{
+				Command: []string{"cat", "/tmp/ready"},
+			},
+		},
+		InitialDelaySeconds: 2,
+		PeriodSeconds:       5,
 	}
 	deployment.Spec.Template.Spec.Containers = []corev1.Container{container}
 	return deployment
@@ -111,6 +127,19 @@ func createPrometheusService() *corev1.Service {
 					Protocol: corev1.ProtocolTCP,
 				},
 			},
+		},
+	}
+}
+
+func createInsecureRegConfigMap() *corev1.ConfigMap {
+	return &corev1.ConfigMap{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "v1",
+			Kind:       "ConfigMap",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   common.InsecureRegistryConfigMap,
+			Labels: utils.WithCommonLabels(nil),
 		},
 	}
 }

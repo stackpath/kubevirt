@@ -4,7 +4,6 @@ go_library(
     name = "go_default_library",
     srcs = [
         "apiserver.go",
-        "common.go",
         "controller.go",
         "factory.go",
         "uploadproxy.go",
@@ -20,5 +19,6 @@ go_library(
         "//vendor/k8s.io/apimachinery/pkg/runtime:go_default_library",
         "//vendor/k8s.io/apimachinery/pkg/util/intstr:go_default_library",
         "//vendor/kubevirt.io/containerized-data-importer/pkg/common:go_default_library",
+        "//vendor/kubevirt.io/containerized-data-importer/pkg/operator/resources/utils:go_default_library",
     ],
 )
