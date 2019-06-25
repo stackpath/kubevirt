@@ -1400,7 +1400,7 @@ func ValidateVirtualMachineInstanceSpec(field *k8sfield.Path, spec *v1.VirtualMa
 		}
 	}
 
-	if !podNetworkInterfacePresent {
+	if !podNetworkInterfacePresent && !spec.ProbeNoPodNetwork {
 		if spec.LivenessProbe != nil {
 			causes = append(causes, metav1.StatusCause{
 				Type:    metav1.CauseTypeFieldValueInvalid,

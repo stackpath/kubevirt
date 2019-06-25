@@ -3092,6 +3092,13 @@ func schema_kubevirt_pkg_api_v1_VirtualMachineInstanceSpec(ref common.ReferenceC
 							Ref:         ref("kubevirt.io/kubevirt/pkg/api/v1.Probe"),
 						},
 					},
+					"probeNoPodNetwork": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Allow probes without pod network. Advanced setups may have the ability to probe network without the default Pod network. This will bypass the pod network validation for probes.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
 					"hostname": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Specifies the hostname of the vmi If not specified, the hostname will be set to the name of the vmi, if dhcp or cloud-init is configured properly.",
