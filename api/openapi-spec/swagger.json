@@ -6222,7 +6222,7 @@
       "$ref": "#/definitions/v1.Affinity"
      },
      "allowProbeWithNoPodNetwork": {
-      "description": "Allow probes without pod network.\nAdvanced setups may have the ability to probe network without the default Pod network.\nThis will bypass the pod network validation for probes.",
+      "description": "Allow probes without pod network.\nAdvanced setups may have the ability to probe network without the default Pod network.\nThis will bypass the pod network validation for probes.\n+optional",
       "type": "boolean"
      },
      "dnsConfig": {
