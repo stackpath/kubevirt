@@ -3092,7 +3092,7 @@ func schema_kubevirt_pkg_api_v1_VirtualMachineInstanceSpec(ref common.ReferenceC
 							Ref:         ref("kubevirt.io/kubevirt/pkg/api/v1.Probe"),
 						},
 					},
-					"probeNoPodNetwork": {
+					"allowProbeWithNoPodNetwork": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Allow probes without pod network. Advanced setups may have the ability to probe network without the default Pod network. This will bypass the pod network validation for probes.",
 							Type:        []string{"boolean"},
