@@ -47,7 +47,7 @@ import (
 )
 
 const (
-	cloudInitUserMaxLen = 2048
+	cloudInitUserMaxLen = 65536
 	arrayLenMax         = 256
 	maxStrLen           = 256
 
