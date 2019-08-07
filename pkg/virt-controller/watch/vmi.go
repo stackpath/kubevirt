@@ -261,7 +261,7 @@ func (c *VMIController) execute(key string) error {
 	if vmi.IsFinal() {
 		_, ok := vmi.Annotations[virtv1.K8sWorkloadControlled]
 		if ok && !podExists(pod) {
-			err := c.clientset.VirtualMachineInstance(vmi.ObjectMeta.Namespace).Delete(vmi.ObjectMeta.Name, &v1.DeleteOptions{})
+			err := c.clientset.VirtualMachineInstance(vmi.ObjectMeta.Namespace).Delete(vmi.ObjectMeta.Name, v1.NewPreconditionDeleteOptions(string(vmi.GetUID())))
 			if err != nil {
 				return err
 			}
