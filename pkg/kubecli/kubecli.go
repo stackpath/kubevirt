@@ -21,7 +21,6 @@
 package kubecli
 
 import (
-	"flag"
 	"os"
 	"sync"
 
@@ -52,8 +51,6 @@ var virtclient KubevirtClient
 var once sync.Once
 
 func init() {
-	flag.StringVar(&kubeconfig, "kubeconfig", "", "absolute path to the kubeconfig file")
-	flag.StringVar(&master, "master", "", "master url")
 }
 
 func GetKubevirtSubresourceClientFromFlags(master string, kubeconfig string) (KubevirtClient, error) {
