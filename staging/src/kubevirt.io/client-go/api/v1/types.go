@@ -450,6 +450,10 @@ const (
 	// This label will be set on all resources created by the operator
 	ManagedByLabel              = "app.kubernetes.io/managed-by"
 	ManagedByLabelOperatorValue = "kubevirt-operator"
+	// References a VM that a pod should be constructed to look like
+	VirtualMachineWorkloadRef string = "kubevirt.io/vm-workload-ref"
+	// Indicates the VMI is controlled by the pod and a workload controller
+	K8sWorkloadControlled string = "kubevirt.io/k8s-workload-controlled"
 	// This annotation represents the kubevirt version for an install strategy configmap.
 	InstallStrategyVersionAnnotation = "kubevirt.io/install-strategy-version"
 	// This annotation represents the kubevirt registry used for an install strategy configmap.
