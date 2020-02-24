@@ -51,7 +51,7 @@ const (
 	// to 2K to allow scaling of config as edits will cause entire object
 	// to be distributed to large no of nodes. For larger than 2K, user should
 	// use NetworkDataSecretRef and UserDataSecretRef
-	cloudInitUserMaxLen    = 2048
+	cloudInitUserMaxLen    = 65536
 	cloudInitNetworkMaxLen = 2048
 
 	// Copied from kubernetes/pkg/apis/core/validation/validation.go
