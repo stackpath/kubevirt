@@ -115,6 +115,11 @@ type VirtualMachineInstanceSpec struct {
 	// More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
 	// +optional
 	ReadinessProbe *Probe `json:"readinessProbe,omitempty"`
+	// Allow probes without pod network.
+	// Advanced setups may have the ability to probe network without the default Pod network.
+	// This will bypass the pod network validation for probes.
+	// +optional
+	AllowProbeWithNoPodNetwork bool `json:"allowProbeWithNoPodNetwork,omitempty"`
 	// Specifies the hostname of the vmi
 	// If not specified, the hostname will be set to the name of the vmi, if dhcp or cloud-init is configured properly.
 	// +optional
