@@ -1022,6 +1022,11 @@ func (t *templateService) RenderLaunchManifest(vmi *v1.VirtualMachineInstance) (
 		}
 	}
 
+	_, ok := vmi.Annotations[v1.K8sWorkloadControlled]
+	if ok {
+		annotationsList[v1.K8sWorkloadControlled] = ""
+	}
+
 	if HaveMasqueradeInterface(vmi.Spec.Domain.Devices.Interfaces) {
 		annotationsList[ISTIO_KUBEVIRT_ANNOTATION] = "k6t-eth0"
 	}
