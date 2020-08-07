@@ -376,6 +376,7 @@ func (t *templateService) RenderLaunchManifest(vmi *v1.VirtualMachineInstance) (
 				},
 			},
 		})
+		privileged = true
 	}
 	serviceAccountName := ""
 

@@ -1530,7 +1530,7 @@ var _ = Describe("Template", func() {
 		})
 
 		Context("with sriov interface", func() {
-			It("should not run privileged", func() {
+			It("should run privileged", func() {
 				// For Power we are currently running in privileged mode or libvirt will fail to lock memory
 				if runtime.GOARCH == "ppc64le" {
 					Skip("ppc64le is currently running is privileged mode, so skipping test")
@@ -1549,7 +1549,7 @@ var _ = Describe("Template", func() {
 				Expect(err).ToNot(HaveOccurred())
 
 				Expect(len(pod.Spec.Containers)).To(Equal(1))
-				Expect(*pod.Spec.Containers[0].SecurityContext.Privileged).To(BeFalse())
+				Expect(*pod.Spec.Containers[0].SecurityContext.Privileged).To(BeTrue())
 			})
 			It("should mount pci related host directories", func() {
 				sriovInterface := v1.InterfaceSRIOV{}
