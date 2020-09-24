@@ -47,17 +47,17 @@ http_archive(
 # Libvirt dependencies
 http_file(
     name = "libvirt_libs",
-    sha256 = "95d317fd645fb52745d642578263a9bcb0d796beadf00aeadebc0d692f5529ba",
+    sha256 = "681a5fdb707027a9ae52fb403117856613505cf72ba5e72fbcd629eb6231a28e",
     urls = [
-        "https://libvirt.org/sources/libvirt-libs-5.0.0-1.fc28.x86_64.rpm",
+        "https://copr-be.cloud.fedoraproject.org/results/%40virtmaint-sig/for-kubevirt/fedora-29-x86_64/01113098-libvirt/libvirt-libs-5.0.0-2.fc29.x86_64.rpm",
     ],
 )
 
 http_file(
     name = "libvirt_devel",
-    sha256 = "6573a047d777ed00f6858c2e75c780053b1f898ae1c3f7415e991c94c5ccdd70",
+    sha256 = "fabcd2c4aaf36aaf530c37591dbba7104aa7410069c0b31dc6248d73eb5e23bb",
     urls = [
-        "https://libvirt.org/sources/libvirt-devel-5.0.0-1.fc28.x86_64.rpm",
+        "https://copr-be.cloud.fedoraproject.org/results/%40virtmaint-sig/for-kubevirt/fedora-29-x86_64/01113098-libvirt/libvirt-devel-5.0.0-2.fc29.x86_64.rpm",
     ],
 )
 
@@ -80,15 +80,15 @@ http_file(
 
 http_file(
     name = "fedora_image",
-    sha256 = "a30549d620bf6bf41d30a9a58626e59dfa70bb011fd7d50f6c4511ad2e479a39",
+    sha256 = "72b6ae7b4ed09a4dccd6e966e1b3ac69bd97da419de9760b410e837ba00b4e26",
     urls = [
-        "https://download.fedoraproject.org/pub/fedora/linux/releases/29/Cloud/x86_64/images/Fedora-Cloud-Base-29-1.2.x86_64.qcow2",
+        "http://mirror.sfo12.us.leaseweb.net/fedora/linux/releases/30/Cloud/x86_64/images/Fedora-Cloud-Base-30-1.2.x86_64.qcow2",
     ],
 )
 
 http_file(
     name = "virtio_win_image",
-    sha256 = "594678f509ba6827c7b75d076ecfb64d45c6ad95e9fccba7258e6eee9a6a3560",
+    sha256 = "97e9f9c7a47cb3d2ba744b8e1c78008a20a2804c89657fcae47113a96885c566",
     urls = [
         "https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/latest-virtio/virtio-win.iso",
     ],
@@ -145,7 +145,7 @@ container_repositories()
 # Pull base image fedora28
 container_pull(
     name = "fedora",
-    digest = "sha256:57d86e03971841e79585379f8346289ceb5a3e8ee06933fbd5064b4f004659d1",
+    digest = "sha256:d6a6d60fda1b22b6d5fe3c3b2abe2554b60432b7b215adc11a2b5fae16f50188",
     registry = "index.docker.io",
     repository = "library/fedora",
     #tag = "28",
@@ -154,7 +154,7 @@ container_pull(
 # Pull base image libvirt
 container_pull(
     name = "libvirt",
-    digest = "sha256:081f113a73748775e5f37d8fb877a574f595df1551e39e48ebbe8e8afd501d3b",
+    digest = "sha256:71d10b2ae0af286e4ff0674a7ecfb86ac2455e529fafc97810101f5700b4a416",
     registry = "index.docker.io",
     repository = "kubevirt/libvirt",
     #tag = "5.0.0",
@@ -186,17 +186,17 @@ http_archive(
 # Get container-disk-v1alpha RPM's
 http_file(
     name = "qemu-img",
-    sha256 = "611d6ff8e08eca0d543486f3e8b437f7ddbc362e4d281c7422677d712d017d61",
+    sha256 = "e02c4181a61cc48de4a0248fe56248d3c2082853e8eb16453bf89d65d204007f",
     urls = [
-        "https://dl.fedoraproject.org/pub/fedora/linux/updates/28/Everything/x86_64/Packages/q/qemu-img-2.11.2-4.fc28.x86_64.rpm",
+        "https://dl.fedoraproject.org/pub/fedora/linux/updates/30/Everything/x86_64/Packages/q/qemu-img-3.1.1-2.fc30.x86_64.rpm",
     ],
 )
 
 http_file(
     name = "bzip2",
-    sha256 = "5248b7b85e58319c6c16e9b545dc04f1b25ba236e0507a7c923d74b00fe8741c",
+    sha256 = "be206924278c745fc04b6b299ac46b4d0c9fe3d979bf34232e0a4071c434741a",
     urls = [
-        "https://dl.fedoraproject.org/pub/fedora/linux/releases/28/Everything/x86_64/os/Packages/b/bzip2-1.0.6-26.fc28.x86_64.rpm",
+        "https://dl.fedoraproject.org/pub/fedora/linux/releases/30/Everything/x86_64/os/Packages/b/bzip2-1.0.6-29.fc30.x86_64.rpm",
     ],
 )
 
@@ -204,46 +204,46 @@ http_file(
     name = "capstone",
     sha256 = "847ebb3a852f82cfe932230d1700cb8b90f602acbe9f9dcf5de7129a1d222c6b",
     urls = [
-        "https://dl.fedoraproject.org/pub/fedora/linux/updates/28/Everything/x86_64/Packages/c/capstone-3.0.5-1.fc28.x86_64.rpm",
+        "https://archives.fedoraproject.org/pub/archive/fedora/linux/updates/28/Everything/x86_64/Packages/c/capstone-3.0.5-1.fc28.x86_64.rpm",
     ],
 )
 
 http_file(
     name = "libaio",
-    sha256 = "da731218ec1a8e8f690c880d7a45d09722ea01090caba0ae25d9202e0d521404",
+    sha256 = "48ada36d31c735b5a4abddd76914d7509fd8784e121cc1b8fe8705dcefd9803c",
     urls = [
-        "https://dl.fedoraproject.org/pub/fedora/linux/releases/28/Everything/x86_64/os/Packages/l/libaio-0.3.110-11.fc28.x86_64.rpm",
+        "https://dl.fedoraproject.org/pub/fedora/linux/releases/30/Everything/x86_64/os/Packages/l/libaio-0.3.111-4.fc30.x86_64.rpm",
     ],
 )
 
 http_file(
     name = "libstdc",
-    sha256 = "61743bc70033f02604fc18991f2a06efebd3b0f55abcbf5b1f7bd3e3cdca6293",
+    sha256 = "f7271e8986d90ca2d573d984e4d5bb180172b55cd8ad02be48525aeeebe66f96",
     urls = [
-        "https://dl.fedoraproject.org/pub/fedora/linux/updates/28/Everything/x86_64/Packages/l/libstdc++-8.3.1-2.fc28.x86_64.rpm",
+        "https://dl.fedoraproject.org/pub/fedora/linux/updates/30/Everything/x86_64/Packages/l/libstdc++-9.3.1-2.fc30.x86_64.rpm",
     ],
 )
 
 http_file(
     name = "qemu-guest-agent",
-    sha256 = "1d76ae3e482017439412e9cc8e179afb8f47ab415a8a9a7ceaa9b4ee4f9c85e8",
+    sha256 = "84385346dbaadb92d7e6e3063878de8d72489c848a7aa0b8b1c7457cbc9fcc1e",
     urls = [
-        "https://dl.fedoraproject.org/pub/fedora/linux/updates/28/Everything/x86_64/Packages/q/qemu-guest-agent-2.11.2-4.fc28.x86_64.rpm",
+        "https://dl.fedoraproject.org/pub/fedora/linux/updates/30/Everything/x86_64/Packages/q/qemu-guest-agent-3.1.1-2.fc30.x86_64.rpm",
     ],
 )
 
 http_file(
     name = "stress",
-    sha256 = "bd93021d826c98cbec15b4bf7e0800f723f986e7ed89357c56284a7efa6394b5",
+    sha256 = "a3f7e2c6e4e77d980e493b5816da813116a1c3d8209a85e604b9a2ad52436452",
     urls = [
-        "https://dl.fedoraproject.org/pub/fedora/linux/releases/28/Everything/x86_64/os/Packages/s/stress-1.0.4-20.fc28.x86_64.rpm",
+        "https://dl.fedoraproject.org/pub/fedora/linux/releases/30/Everything/x86_64/os/Packages/s/stress-1.0.4-22.fc30.x86_64.rpm",
     ],
 )
 
 http_file(
     name = "e2fsprogs",
-    sha256 = "d6db37d587a2a0f7cd19e42aea8bd3e5e7c3a9c39c324d40be7514624f9f8f5f",
+    sha256 = "b0ef4faa1abcc38230687bfb95bd4e0f326669b8262bc1cd612ad58385299bf4",
     urls = [
-        "https://dl.fedoraproject.org/pub/fedora/linux/updates/28/Everything/x86_64/Packages/e/e2fsprogs-1.44.2-0.fc28.x86_64.rpm",
+        "https://dl.fedoraproject.org/pub/fedora/linux/updates/30/Everything/x86_64/Packages/e/e2fsprogs-1.44.6-2.fc30.x86_64.rpm",
     ],
 )

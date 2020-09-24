@@ -156,7 +156,10 @@ load(
 
 container_image(
     name = "passwd-image",
-    base = "@fedora//image",
+    base = select({
+        "@io_bazel_rules_go//go/platform:linux_ppc64le": "@fedora_ppc64le//image",
+        "//conditions:default": "@fedora//image",
+    }),
     tars = [":passwd-tar"],
     user = "1001",
     visibility = ["//visibility:public"],
