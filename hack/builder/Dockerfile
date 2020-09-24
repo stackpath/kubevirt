@@ -1,10 +1,10 @@
-FROM fedora:28
+FROM fedora:31
 
-ENV LIBVIRT_VERSION 5.1.0
+ENV LIBVIRT_VERSION 5.0.0
 
 # Install packages
 RUN dnf install -y dnf-plugins-core && \
-    dnf copr enable -y @virtmaint-sig/virt-preview && \
+    dnf copr enable -y @virtmaint-sig/for-kubevirt && \
     dnf copr enable -y vbatts/bazel && \
     dnf -y install \
         libvirt-devel-${LIBVIRT_VERSION} \
@@ -19,15 +19,23 @@ RUN dnf install -y dnf-plugins-core && \
         gcc-c++ \
         glibc-devel \
         findutils \
-        gradle \
         rsync-daemon \
         rsync \
         qemu-img \
         protobuf-compiler \
         python3-devel \
         redhat-rpm-config \
-        jq && \
+        jq \
+        wget && \
     dnf -y clean all
+
+# install gradle (required for swagger)
+RUN wget https://services.gradle.org/distributions/gradle-6.6-bin.zip && \
+    mkdir /opt/gradle && \
+    unzip -d /opt/gradle gradle-6.6-bin.zip
+
+ENV PATH=$PATH:/opt/gradle/gradle-6.6/bin \
+    JAVA_HOME=/usr/lib/jvm/java-11-openjdk-11.0.8.10-2.fc31.x86_64
 
 ENV GIMME_GO_VERSION=1.11.5
 

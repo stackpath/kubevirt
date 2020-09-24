@@ -652,6 +652,31 @@ func Convert_v1_VirtualMachine_To_api_Domain(vmi *v1.VirtualMachineInstance, dom
 		}
 	}
 
+	if vmi.Spec.Domain.Chassis != nil {
+		domain.Spec.SysInfo.Chassis = []Entry{
+			{
+				Name:  "manufacturer",
+				Value: string(vmi.Spec.Domain.Chassis.Manufacturer),
+			},
+			{
+				Name:  "version",
+				Value: string(vmi.Spec.Domain.Chassis.Version),
+			},
+			{
+				Name:  "serial",
+				Value: string(vmi.Spec.Domain.Chassis.Serial),
+			},
+			{
+				Name:  "asset",
+				Value: string(vmi.Spec.Domain.Chassis.Asset),
+			},
+			{
+				Name:  "sku",
+				Value: string(vmi.Spec.Domain.Chassis.Sku),
+			},
+		}
+	}
+
 	// Take memory from the requested memory
 	if v, ok := vmi.Spec.Domain.Resources.Requests[k8sv1.ResourceMemory]; ok {
 		if domain.Spec.Memory, err = QuantityToByte(v); err != nil {
@@ -1321,6 +1346,14 @@ func QuantityToByte(quantity resource.Quantity) (Memory, error) {
 		Value: uint64(memorySize),
 		Unit:  "B",
 	}, nil
+}
+
+func QuantityToMebiByte(quantity resource.Quantity) (uint64, error) {
+	q := int64(float64(0.953674) * float64(quantity.ScaledValue(resource.Mega)))
+	if q < 0 {
+		return 0, fmt.Errorf("Quantity '%s' must be greate tan or equal to 0", quantity.String())
+	}
+	return uint64(q), nil
 }
 
 func boolToOnOff(value *bool, defaultOn bool) string {
