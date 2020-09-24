@@ -374,6 +374,7 @@ var _ = Describe("Converter", func() {
     </system>
     <bios></bios>
     <baseBoard></baseBoard>
+    <chassis></chassis>
   </sysinfo>
   <devices>
     <interface type="bridge">
