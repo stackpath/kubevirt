@@ -17835,6 +17835,13 @@ func schema_kubevirtio_client_go_api_v1_VirtualMachineInstanceSpec(ref common.Re
 							Ref:         ref("k8s.io/api/core/v1.Affinity"),
 						},
 					},
+					"allowProbeWithNoPodNetwork": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Allow probes without pod network. Advanced setups may have the ability to probe network without the default Pod network. This will bypass the pod network validation for probes.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
 					"schedulerName": {
 						SchemaProps: spec.SchemaProps{
 							Description: "If specified, the VMI will be dispatched by specified scheduler. If not specified, the VMI will be dispatched by default scheduler.",
