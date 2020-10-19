@@ -97,6 +97,11 @@ type VirtualMachineInstanceSpec struct {
 	NodeSelector map[string]string `json:"nodeSelector,omitempty"`
 	// If affinity is specifies, obey all the affinity rules
 	Affinity *k8sv1.Affinity `json:"affinity,omitempty"`
+	// Allow probes without pod network.
+	// Advanced setups may have the ability to probe network without the default Pod network.
+	// This will bypass the pod network validation for probes.
+	// +optional
+	AllowProbeWithNoPodNetwork bool `json:"allowProbeWithNoPodNetwork,omitempty"`
 	// If specified, the VMI will be dispatched by specified scheduler.
 	// If not specified, the VMI will be dispatched by default scheduler.
 	// +optional
