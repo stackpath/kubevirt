@@ -16,6 +16,7 @@ import (
 	v13 "k8s.io/client-go/kubernetes/typed/apps/v1"
 	v1beta10 "k8s.io/client-go/kubernetes/typed/apps/v1beta1"
 	v1beta2 "k8s.io/client-go/kubernetes/typed/apps/v1beta2"
+	auditregistrationv1alpha1 "k8s.io/client-go/kubernetes/typed/auditregistration/v1alpha1"
 	v1alpha1 "k8s.io/client-go/kubernetes/typed/auditregistration/v1alpha1"
 	v14 "k8s.io/client-go/kubernetes/typed/authentication/v1"
 	v1beta11 "k8s.io/client-go/kubernetes/typed/authentication/v1beta1"
@@ -1491,4 +1492,16 @@ func (_m *MockKubeVirtInterface) PatchStatus(name string, pt types.PatchType, da
 
 func (_mr *_MockKubeVirtInterfaceRecorder) PatchStatus(arg0, arg1, arg2 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "PatchStatus", arg0, arg1, arg2)
+}
+
+func (_m *MockKubevirtClient) AuditregistrationV1alpha1() auditregistrationv1alpha1.AuditregistrationV1alpha1Interface {
+	ret := _m.ctrl.Call(_m, "AuditregistrationV1alpha1")
+	ret0, _ := ret[0].(auditregistrationv1alpha1.AuditregistrationV1alpha1Interface)
+	return ret0
+}
+
+func (_m *MockKubevirtClient) Auditregistration() auditregistrationv1alpha1.AuditregistrationV1alpha1Interface {
+	ret := _m.ctrl.Call(_m, "Auditregistration")
+	ret0, _ := ret[0].(auditregistrationv1alpha1.AuditregistrationV1alpha1Interface)
+	return ret0
 }
