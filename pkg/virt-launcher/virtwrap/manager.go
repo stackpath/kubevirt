@@ -879,6 +879,16 @@ func (l *LibvirtDomainManager) PrepareMigrationTarget(vmi *v1.VirtualMachineInst
 		}
 
 	}
+
+	// set drivers cache mode
+	driverCacheMode := make(map[string]v1.DriverCache)
+	for i := range domain.Spec.Devices.Disks {
+		driverCacheMode[domain.Spec.Devices.Disks[i].Source.Name], err = api.SetDriverCacheMode(&domain.Spec.Devices.Disks[i])
+		if err != nil {
+			return err
+		}
+	}
+
 	// Map the VirtualMachineInstance to the Domain
 	c := &api.ConverterContext{
 		Architecture:      runtime.GOARCH,
@@ -888,6 +898,7 @@ func (l *LibvirtDomainManager) PrepareMigrationTarget(vmi *v1.VirtualMachineInst
 		IsBlockPVC:        isBlockPVCMap,
 		IsBlockDV:         isBlockDVMap,
 		DiskType:          diskInfo,
+		DriverCacheMode:   driverCacheMode,
 		EmulatorThreadCpu: emulatorThreadCpu,
 		OVMFPath:          l.ovmfPath,
 	}
@@ -1061,14 +1072,6 @@ func (l *LibvirtDomainManager) preStartHook(vmi *v1.VirtualMachineInstance, doma
 		return domain, fmt.Errorf("creating service account disk failed: %v", err)
 	}
 
-	// set drivers cache mode
-	for i := range domain.Spec.Devices.Disks {
-		err := api.SetDriverCacheMode(&domain.Spec.Devices.Disks[i])
-		if err != nil {
-			return domain, err
-		}
-	}
-
 	return domain, err
 }
 
@@ -1217,6 +1220,15 @@ func (l *LibvirtDomainManager) SyncVMI(vmi *v1.VirtualMachineInstance, useEmulat
 		}
 	}
 
+	// set drivers cache mode
+	driverCacheMode := make(map[string]v1.DriverCache)
+	for i := range domain.Spec.Devices.Disks {
+		driverCacheMode[domain.Spec.Devices.Disks[i].Source.Name], err = api.SetDriverCacheMode(&domain.Spec.Devices.Disks[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	// Map the VirtualMachineInstance to the Domain
 	c := &api.ConverterContext{
 		Architecture:      runtime.GOARCH,
@@ -1226,6 +1238,7 @@ func (l *LibvirtDomainManager) SyncVMI(vmi *v1.VirtualMachineInstance, useEmulat
 		IsBlockPVC:        isBlockPVCMap,
 		IsBlockDV:         isBlockDVMap,
 		DiskType:          diskInfo,
+		DriverCacheMode:   driverCacheMode,
 		SRIOVDevices:      getSRIOVPCIAddresses(vmi.Spec.Domain.Devices.Interfaces),
 		GpuDevices:        getEnvAddressListByPrefix(gpuEnvPrefix),
 		VgpuDevices:       getEnvAddressListByPrefix(vgpuEnvPrefix),
