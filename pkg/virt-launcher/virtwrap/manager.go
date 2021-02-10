@@ -883,7 +883,7 @@ func (l *LibvirtDomainManager) PrepareMigrationTarget(vmi *v1.VirtualMachineInst
 	// set drivers cache mode
 	driverCacheMode := make(map[string]v1.DriverCache)
 	for i := range domain.Spec.Devices.Disks {
-		driverCacheMode[domain.Spec.Devices.Disks[i].Source.Name], err = converter.SetDriverCacheMode(&domain.Spec.Devices.Disks[i])
+		driverCacheMode[domain.Spec.Devices.Disks[i].Source.Name], err = api.SetDriverCacheMode(&domain.Spec.Devices.Disks[i])
 		if err != nil {
 			return err
 		}
@@ -1223,9 +1223,9 @@ func (l *LibvirtDomainManager) SyncVMI(vmi *v1.VirtualMachineInstance, useEmulat
 	// set drivers cache mode
 	driverCacheMode := make(map[string]v1.DriverCache)
 	for i := range domain.Spec.Devices.Disks {
-		driverCacheMode[domain.Spec.Devices.Disks[i].Source.Name], err = converter.SetDriverCacheMode(&domain.Spec.Devices.Disks[i])
+		driverCacheMode[domain.Spec.Devices.Disks[i].Source.Name], err = api.SetDriverCacheMode(&domain.Spec.Devices.Disks[i])
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
 
