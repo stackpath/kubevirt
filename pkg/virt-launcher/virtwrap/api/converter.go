@@ -68,6 +68,7 @@ type ConverterContext struct {
 	IsBlockPVC            map[string]bool
 	IsBlockDV             map[string]bool
 	DiskType              map[string]*containerdisk.DiskInfo
+	DriverCacheMode       map[string]v1.DriverCache
 	SRIOVDevices          map[string][]string
 	SMBios                *cmdv1.SMBios
 	GpuDevices            []string
@@ -144,7 +145,7 @@ func checkDirectIOFlag(path string) bool {
 	return true
 }
 
-func SetDriverCacheMode(disk *Disk) error {
+func SetDriverCacheMode(disk *Disk) (v1.DriverCache, error) {
 	var path string
 	supportDirectIO := true
 	mode := v1.DriverCache(disk.Driver.Cache)
@@ -154,7 +155,7 @@ func SetDriverCacheMode(disk *Disk) error {
 	} else if disk.Source.Dev != "" {
 		path = disk.Source.Dev
 	} else {
-		return fmt.Errorf("Unable to set a driver cache mode, disk is neither a block device nor a file")
+		return v1.DriverCache(disk.Driver.Cache), fmt.Errorf("Unable to set a driver cache mode, disk is neither a block device nor a file")
 	}
 
 	if mode == "" || mode == v1.CacheNone {
@@ -174,7 +175,7 @@ func SetDriverCacheMode(disk *Disk) error {
 
 	// if user set a cache mode = 'none' and fs does not support direct I/O then return an error
 	if mode == v1.CacheNone && !supportDirectIO {
-		return fmt.Errorf("Unable to use '%s' cache mode, file system where %s is stored does not support direct I/O", mode, path)
+		return v1.DriverCache(disk.Driver.Cache), fmt.Errorf("Unable to use '%s' cache mode, file system where %s is stored does not support direct I/O", mode, path)
 	}
 
 	// if user did not set a cache mode and fs supports direct I/O then set cache = 'none'
@@ -188,7 +189,7 @@ func SetDriverCacheMode(disk *Disk) error {
 	disk.Driver.Cache = string(mode)
 	log.Log.Infof("Driver cache mode for %s set to %s", path, mode)
 
-	return nil
+	return mode, nil
 }
 
 func makeDeviceName(bus string, devicePerBus map[string]int) string {
@@ -983,6 +984,8 @@ func Convert_v1_VirtualMachine_To_api_Domain(vmi *v1.VirtualMachineInstance, dom
 			}
 			newDisk.Driver.IOThread = &ioThreadId
 		}
+
+		newDisk.Driver.Cache = string(c.DriverCacheMode[newDisk.Source.Name])
 
 		domain.Spec.Devices.Disks = append(domain.Spec.Devices.Disks, newDisk)
 	}
