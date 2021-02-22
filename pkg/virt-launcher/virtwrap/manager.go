@@ -629,6 +629,13 @@ func (l *LibvirtDomainManager) PrepareMigrationTarget(vmi *v1.VirtualMachineInst
 		return fmt.Errorf("conversion failed: %v", err)
 	}
 
+	// set drivers cache mode
+	for i := range domain.Spec.Devices.Disks {
+		if err := api.SetDriverCacheMode(&domain.Spec.Devices.Disks[i]); err != nil {
+			return fmt.Errorf("setting driver cache mode failed: %v", err)
+		}
+	}
+
 	dom, err := l.preStartHook(vmi, domain)
 	if err != nil {
 		return fmt.Errorf("pre-start pod-setup failed: %v", err)
@@ -751,14 +758,6 @@ func (l *LibvirtDomainManager) preStartHook(vmi *v1.VirtualMachineInstance, doma
 		return domain, fmt.Errorf("creating service account disk failed: %v", err)
 	}
 
-	// set drivers cache mode
-	for i := range domain.Spec.Devices.Disks {
-		err := api.SetDriverCacheMode(&domain.Spec.Devices.Disks[i])
-		if err != nil {
-			return domain, err
-		}
-	}
-
 	return domain, err
 }
 
@@ -858,6 +857,13 @@ func (l *LibvirtDomainManager) SyncVMI(vmi *v1.VirtualMachineInstance, useEmulat
 	if err := api.Convert_v1_VirtualMachine_To_api_Domain(vmi, domain, c); err != nil {
 		logger.Error("Conversion failed.")
 		return nil, err
+	}
+
+	// set drivers cache mode
+	for i := range domain.Spec.Devices.Disks {
+		if err := api.SetDriverCacheMode(&domain.Spec.Devices.Disks[i]); err != nil {
+			return nil, err
+		}
 	}
 
 	// Set defaults which are not coming from the cluster
